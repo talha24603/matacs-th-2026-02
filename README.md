@@ -4,7 +4,7 @@
 |---|---|
 | **Name** | Talha Tariq |
 | **Reference** | MATACS-TH-2026-02 |
-| **Time spent** | TODO: about X minutes |
+| **Time spent** | 3 hours |
 
 ## Files
 
@@ -42,6 +42,4 @@ Why B and D are not ranked even though they are the two cheapest: a low price ca
 
 ## How I used AI tools
 
-TODO: rewrite in your own words, 2–3 sentences. Example shape: "I used Claude Code to draft the write-up, prompt and diagram from my design notes, then reviewed and edited each file. I disagreed with it on ___ because ___."
-
-TODO: name one real place where you corrected or disagreed with the AI's output, and say why.
+I used Claude Code to draft the write-up, extraction prompt, diagram and expected ranking from the brief, then reviewed each part. When I asked what happens if a proposal leaves information out, it turned out its design silently scored missing experience or warranty figures as zero instead of flagging them for a reviewer, which would unfairly punish a bidder who simply forgot to state something; I had it changed so any missing value raises a flag.
