@@ -14,7 +14,6 @@
 | [diagram/process-flow.png](diagram/process-flow.png) | Process flow from upload to ranked output: AI steps, rule steps, human checkpoints |
 | [PROMPTS.md](PROMPTS.md) | The extraction prompt, exactly as sent, plus call settings and output schema |
 | [ranking.json](ranking.json) | Expected ranking of proposals A–E |
-| [prototype/](prototype/) | Optional: scorer that produces `ranking.json`, and an extractor that runs the prompt |
 
 ## Design in 30 seconds
 
@@ -27,7 +26,7 @@
 
 ## Sample ranking walkthrough
 
-Scores come from [prototype/score.py](prototype/score.py) applied to the facts in [prototype/sample_extractions.json](prototype/sample_extractions.json). Each criterion is worth up to its weight in points.
+Each criterion is worth up to its weight in points. The facts come from reading each proposal against the criteria questions in [PROMPTS.md](PROMPTS.md); the points come from the formulas below.
 
 | Proposal | Experience /30 | Price /25 | Timeline /15 | Warranty /15 | Team /15 | Total | Status |
 |---|---|---|---|---|---|---|---|
@@ -41,24 +40,8 @@ Scoring anchors used for this example (in the admin config, not in code): experi
 
 Why B and D are not ranked even though they are the two cheapest: a low price can't make up for a missing mandatory licence, and a missing schedule is a question for the bidder, not something to guess.
 
-## Running the prototype (optional)
-
-```bash
-cd prototype
-python score.py criteria_solar_v1.json sample_extractions.json   # no dependencies, reproduces ranking.json
-
-# Full pipeline with the AI step (needs an Anthropic API key):
-pip install -r requirements.txt
-cp .env.example .env                                             # add your key; .env is git-ignored
-# save each proposal's text as samples/A.txt ... samples/E.txt (git-ignored; brief text is not committed)
-python extract.py criteria_solar_v1.json samples extractions.json
-python score.py criteria_solar_v1.json extractions.json
-```
-
-`extract.py` reads the prompt directly from [PROMPTS.md](PROMPTS.md), builds the JSON schema from the criteria config, discards any answer whose quote isn't found in the text, and adds pattern-scan hits to `embedded_instructions`.
-
 ## How I used AI tools
 
-TODO: rewrite in your own words, 2–3 sentences. Example shape: "I used Claude Code to draft the write-up, prompt, diagram and the prototype scorer from my design notes, then reviewed and edited each file. I disagreed with it on ___ because ___."
+TODO: rewrite in your own words, 2–3 sentences. Example shape: "I used Claude Code to draft the write-up, prompt and diagram from my design notes, then reviewed and edited each file. I disagreed with it on ___ because ___."
 
 TODO: name one real place where you corrected or disagreed with the AI's output, and say why.

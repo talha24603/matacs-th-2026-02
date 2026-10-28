@@ -2,7 +2,7 @@
 
 The design uses **one AI prompt: fact extraction.** The AI does not score or rank anything. Plain code does that from the extracted facts (see [WRITEUP.md](WRITEUP.md), Q1).
 
-The prompt is a template. The `{{...}}` placeholders are filled from the admin's criteria config for the category ([prototype/criteria_solar_v1.json](prototype/criteria_solar_v1.json)), so changing the criteria never means editing the prompt. [prototype/extract.py](prototype/extract.py) reads the two blocks below straight from this file, so what you see here is exactly what gets sent.
+The prompt is a template. The `{{...}}` placeholders are filled from the criteria the admin sets up for the category in the admin screens, so changing the criteria never means editing the prompt.
 
 ## Call settings
 
