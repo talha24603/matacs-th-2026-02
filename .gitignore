@@ -1,0 +1,4 @@
+.env
+prototype/samples/
+prototype/extractions.json
+__pycache__/

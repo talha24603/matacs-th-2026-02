@@ -1,0 +1,64 @@
+# AI Proposal Triage: Design Submission
+
+| | |
+|---|---|
+| **Name** | Talha Tariq |
+| **Reference** | MATACS-TH-2026-02 |
+| **Time spent** | TODO: about X minutes |
+
+## Files
+
+| File | What it is |
+|---|---|
+| [WRITEUP.md](WRITEUP.md) | Answers to the five questions (under 1,000 words) |
+| [diagram/process-flow.png](diagram/process-flow.png) | Process flow from upload to ranked output: AI steps, rule steps, human checkpoints |
+| [PROMPTS.md](PROMPTS.md) | The extraction prompt, exactly as sent, plus call settings and output schema |
+| [ranking.json](ranking.json) | Expected ranking of proposals A–E |
+| [prototype/](prototype/) | Optional: scorer that produces `ranking.json`, and an extractor that runs the prompt |
+
+## Design in 30 seconds
+
+1. **AI reads.** One call per proposal answers the admin's criteria questions as structured JSON, with a word-for-word quote for every answer.
+2. **Code checks.** Every quote must really appear in the document, or the value is thrown away. A pattern scan looks for text aimed at the reviewer or AI.
+3. **Code scores.** Mandatory pass/fail, budget and schedule limits, then weighted formulas taken from the admin's versioned config.
+4. **People decide.** Anything uncertain is flagged and held until a reviewer resolves it. Overrides need a reason and are logged. A person makes the award.
+
+![Process flow](diagram/process-flow.png)
+
+## Sample ranking walkthrough
+
+Scores come from [prototype/score.py](prototype/score.py) applied to the facts in [prototype/sample_extractions.json](prototype/sample_extractions.json). Each criterion is worth up to its weight in points.
+
+| Proposal | Experience /30 | Price /25 | Timeline /15 | Warranty /15 | Team /15 | Total | Status |
+|---|---|---|---|---|---|---|---|
+| A | 28.0 (14 installs) | 10.6 ($238,000) | 7.5 (12 wk) | 12.5 (25y/10y) | 15.0 (4/4) | **73.6** | Ranked 1 |
+| E | 16.0 (8) | 8.4 ($242,500) | 5.6 (13 wk) | 13.5 (25y/12y) | 15.0 (4/4) | **58.5** | Ranked 2 |
+| D | 22.0 (11) | 13.9 ($231,000) | 0.0 (no commitment) | 12.5 | 7.5 (2/4) | *55.9 provisional* | Flagged: no committed schedule, so the 16-week limit can't be confirmed. Ask the bidder. |
+| C | 18.0 (9) | 7.7 ($244,000) | 3.8 (14 wk) | 12.5 | 7.5 (2/4) | *49.5 provisional* | Flagged: embedded instruction to automated reviewers (ignored for scoring); project count starts 2020 |
+| B | – | – | – | – | – | – | Ineligible: licence not held by bidder (electrical subcontractor "to be confirmed") |
+
+Scoring anchors used for this example (in the admin config, not in code): experience gives full marks at 15 installs; price gives full marks at or below $208k (20% under the ceiling) and zero at $260k; timeline gives full marks at 8 weeks and zero at 16; warranty averages panel (out of 25 years) and workmanship (out of 15 years); team is a 4-item checklist (named lead, crew, safety plan, performance monitoring). Assumptions are listed at the end of [WRITEUP.md](WRITEUP.md).
+
+Why B and D are not ranked even though they are the two cheapest: a low price can't make up for a missing mandatory licence, and a missing schedule is a question for the bidder, not something to guess.
+
+## Running the prototype (optional)
+
+```bash
+cd prototype
+python score.py criteria_solar_v1.json sample_extractions.json   # no dependencies, reproduces ranking.json
+
+# Full pipeline with the AI step (needs an Anthropic API key):
+pip install -r requirements.txt
+cp .env.example .env                                             # add your key; .env is git-ignored
+# save each proposal's text as samples/A.txt ... samples/E.txt (git-ignored; brief text is not committed)
+python extract.py criteria_solar_v1.json samples extractions.json
+python score.py criteria_solar_v1.json extractions.json
+```
+
+`extract.py` reads the prompt directly from [PROMPTS.md](PROMPTS.md), builds the JSON schema from the criteria config, discards any answer whose quote isn't found in the text, and adds pattern-scan hits to `embedded_instructions`.
+
+## How I used AI tools
+
+TODO: rewrite in your own words, 2–3 sentences. Example shape: "I used Claude Code to draft the write-up, prompt, diagram and the prototype scorer from my design notes, then reviewed and edited each file. I disagreed with it on ___ because ___."
+
+TODO: name one real place where you corrected or disagreed with the AI's output, and say why.
