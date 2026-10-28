@@ -16,13 +16,13 @@ Flow diagram: [diagram/process-flow.png](diagram/process-flow.png). Sample resul
 | Weighted scores, ranking, reason text | Code | Arithmetic from admin formulas. Repeatable and auditable. |
 | Confirm flags, overrides, award | Human | Judgement and accountability |
 
-The line: **AI turns messy text into structured facts. Everything after that is deterministic.** The AI never sees the weights and never produces a score, so it can't drift on scores or be talked into them.
+**AI turns messy text into structured facts. Everything after that is deterministic.** The AI never sees the weights and never produces a score, so it can't drift on scores or be talked into them.
 
 ## 2. Consistency and explainability
 
 - **Repeatable:** every score is a formula over extracted facts (for example price: full marks at $208k or less, zero at the $260k ceiling, linear in between). Same facts give the same score every time.
-- **Extraction is cached.** Facts are stored by file hash + criteria version + prompt version + model. Ranking the same files twice reuses the stored facts, so the result is **identical**. A fresh re-extraction might word a note differently, but the facts are concrete numbers and yes/no answers, and the quote check rejects anything unsupported. Optionally extract twice and flag any field where the runs disagree.
-- **Explainable:** for each proposal the reviewer sees the points per criterion, the fact behind each one, and the quoted sentence with page number, which they can click to see in the PDF. For example, A's line reads "price $238,000 (10.6/25) … team 4/4 (15.0/15)". The reason text is built by code from that breakdown, so it can't state anything the evidence doesn't.
+- **Extraction is cached.** Facts are stored by file hash + criteria version + prompt version + model. Ranking the same files twice reuses the stored facts, so the result is **identical**. A fresh re-extraction may word notes differently, but facts are numbers and yes/no answers, and unsupported ones are rejected. Optionally extract twice and flag any field where the runs disagree.
+- **Explainable:** for each proposal the reviewer sees the points per criterion, the fact behind each one, and the quoted sentence with page number, linked to the PDF. For example, A's line reads "price $238,000 (10.6/25) … team 4/4 (15.0/15)". The reason text is built by code from that breakdown, so it can't state anything the evidence doesn't.
 
 ## 3. Human in the loop
 
@@ -45,11 +45,11 @@ Criteria are **versioned, never edited in place**. Every scoring run is tied to 
 
 | Risk | Safeguard |
 |---|---|
-| **Wrong extraction** (misread number, "not mentioned" vs "no") | Quote required for every answer; code checks the number appears in the quote; null means "not stated" and goes to a human, never a silent zero on mandatory items |
+| **Wrong extraction** (misread number, "not mentioned" vs "no") | Quote required for every answer; code checks the number appears in the quote; null means "not stated" and goes to a human |
 | **Made-up facts** | A quote not found in the document means the value is discarded and flagged. The AI writes no free-text reasons. |
 | **Manipulation / prompt injection** (Proposal C) | Proposal is wrapped and labelled as untrusted data; AI told to report, not follow, instructions; separate code pattern scan; AI has no power over scores anyway. A hit flags the proposal for a human. |
 | **Bias** (polished or long proposals win; brand names) | Scores come only from facts, so writing style earns nothing. Each proposal is read on its own, so bids don't influence each other. Bidder names could be hidden from reviewers until ranking. |
-| **Missing information punishes short bids** | Missing hard requirement = flag + "request clarification", not automatic rejection (Proposal D) |
+| **Missing information punishes short bids** | Any missing value (mandatory item, limit or scored criterion) = flag + "request clarification", never a silent zero or automatic rejection (Proposal D). Only unmentioned team-checklist items count as not offered. |
 | **Cost** | One AI call per proposal; cached results; weight changes cost nothing; smallest model that passes the checks |
 
 ## Sample set
